@@ -1,0 +1,85 @@
+Index: doc/Makefile.am
+===================================================================
+--- doc/Makefile.am	(リビジョン 1)
++++ doc/Makefile.am	(作業コピー)
+@@ -9,15 +9,15 @@
+ 	dir="$(dir)"; \
+ 	for lang in $$dir; do \
+ 		if test -r $(MKINSTALLDIRS); then \
+-			$(MKINSTALLDIRS) $(pkgdatadir)/help/$$lang; \
++			$(MKINSTALLDIRS) $(DESTDIR)$(pkgdatadir)/help/$$lang; \
+ 		else \
+-			$(top_srcdir)/mkinstalldirs $(pkgdatadir)/help/$$lang; \
++			$(top_srcdir)/mkinstalldirs $(DESTDIR)$(pkgdatadir)/help/$$lang; \
+ 		fi; \
+ 	done; \
+ 	data="$(data)"; \
+ 	for lang in $$dir; do \
+ 		for file in $$data; do \
+-			$(INSTALL_DATA) $(srcdir)/$$lang/$$file $(pkgdatadir)/help/$$lang/$$file; \
++			$(INSTALL_DATA) $(srcdir)/$$lang/$$file $(DESTDIR)$(pkgdatadir)/help/$$lang/$$file; \
+ 		done; \
+ 	done;
+ 
+@@ -25,5 +25,5 @@
+ installcheck:
+ 
+ uninstall:
+-	rm -fr $(pkgdatadir)/help
++	rm -fr $(DESTDIR)$(pkgdatadir)/help
+ 
+Index: data/Makefile.am
+===================================================================
+--- data/Makefile.am	(リビジョン 1)
++++ data/Makefile.am	(作業コピー)
+@@ -6,13 +6,13 @@
+ 
+ install:
+ 	if test -r $(MKINSTALLDIRS); then \
+-		$(MKINSTALLDIRS) $(pkgdatadir); \
++		$(MKINSTALLDIRS) $(DESTDIR)$(pkgdatadir); \
+ 	else \
+-		$(top_srcdir)/mkinstalldirs $(pkgdatadir); \
++		$(top_srcdir)/mkinstalldirs $(DESTDIR)$(pkgdatadir); \
+ 	fi; \
+ 	data="$(data)"; \
+ 	for file in $$data; do \
+-		$(INSTALL_DATA) $(srcdir)/$$file $(pkgdatadir)/$$file; \
++		$(INSTALL_DATA) $(srcdir)/$$file $(DESTDIR)$(pkgdatadir)/$$file; \
+ 	done;
+ 
+ # Define this as empty until I found a useful application.
+@@ -21,7 +21,7 @@
+ uninstall:
+ 	data="$(data)"; \
+ 	for file in $$data; do \
+-	  rm -f $(pkgdatadir)/$$file; \
++	  rm -f $(DESTDIR)$(pkgdatadir)/$$file; \
+ 	done
+ 
+ mostlyclean:
+Index: po/Makefile.in.in
+===================================================================
+--- po/Makefile.in.in	(リビジョン 1)
++++ po/Makefile.in.in	(作業コピー)
+@@ -115,16 +115,16 @@
+ install-data-no: all
+ install-data-yes: all
+ 	if test -r "$(MKINSTALLDIRS)"; then \
+-	  $(MKINSTALLDIRS) $(datadir); \
++	  $(MKINSTALLDIRS) $(DESTDIR)$(datadir); \
+ 	else \
+-	  $(SHELL) $(top_srcdir)/mkinstalldirs $(datadir); \
++	  $(SHELL) $(top_srcdir)/mkinstalldirs $(DESTDIR)$(datadir); \
+ 	fi
+ 	@catalogs='$(CATALOGS)'; \
+ 	for cat in $$catalogs; do \
+ 	  cat=`basename $$cat`; \
+ 	  case "$$cat" in \
+-	    *.gmo) destdir=$(gnulocaledir);; \
+-	    *)     destdir=$(localedir);; \
++	    *.gmo) destdir=$(DESTDIR)$(gnulocaledir);; \
++	    *)     destdir=$(DESTDIR)$(localedir);; \
+ 	  esac; \
+ 	  lang=`echo $$cat | sed 's/\$(CATOBJEXT)$$//'`; \
+ 	  dir=$$destdir/$$lang/LC_MESSAGES; \

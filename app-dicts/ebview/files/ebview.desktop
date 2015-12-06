@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=EBView
+Name[ja]=EBView 辞書ブラウザ
+Comment=EPWING CD-ROM dictionary viewer
+Comment[ja]=EPWING形式のCD-ROM辞書を検索します
+Icon=ebview
+Exec=ebview
+StartupNotify=true
+Terminal=false
+Type=Application
+Categories=GTK;Utility;Dictionary;

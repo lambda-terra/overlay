@@ -1,0 +1,79 @@
+diff -urN ebview-0.3.6.2.orig/configure.in ebview-0.3.6.2/configure.in
+--- ebview-0.3.6.2.orig/configure.in	2013-03-26 23:23:07.376966388 +0900
++++ ebview-0.3.6.2/configure.in	2013-03-26 23:24:31.486966668 +0900
+@@ -21,9 +21,9 @@
+ AC_SUBST(GTK_CFLAGS)
+ AC_SUBST(GTK_LIBS)
+ 
+-PKG_CHECK_MODULES(PANGOX, pangox)
+-AC_SUBST(PANGOX_CFLAGS)
+-AC_SUBST(PANGOX_LIBS)
++PKG_CHECK_MODULES(PANGOXFT, pangoxft)
++AC_SUBST(PANGOXFT_CFLAGS)
++AC_SUBST(PANGOXFT_LIBS)
+            
+ eb_LIB_EB4
+ 
+diff -urN ebview-0.3.6.2.orig/src/Makefile.am ebview-0.3.6.2/src/Makefile.am
+--- ebview-0.3.6.2.orig/src/Makefile.am	2013-03-26 23:23:07.376966388 +0900
++++ ebview-0.3.6.2/src/Makefile.am	2013-03-26 23:26:15.466967014 +0900
+@@ -2,9 +2,9 @@
+ 
+ AM_CPPFLAGS= @EBCONF_PTHREAD_CPPFLAGS@ @EBCONF_EBINCS@ \
+              @EBCONF_ZLIBINCS@ @EBCONF_INTLINCS@
+-AM_CFLAGS = @PANGOX_CFLAGS@ @GTK_CFLAGS@ @EBCONF_PTHREAD_CFLAGS@  @CYGWIN_CFLAGS@ -Wall
+-AM_CXXFLAGS = @PANGOX_CFLAGS@ @GTK_CFLAGS@ @EBCONF_PTHREAD_CFLAGS@
+-ebview_LDADD = @PANGOX_LIBS@ @GTK_LIBS@ @THREAD_LIBS@ @CYGWIN_CFLAGS@ \
++AM_CFLAGS = @PANGOXFT_CFLAGS@ @GTK_CFLAGS@ @EBCONF_PTHREAD_CFLAGS@  @CYGWIN_CFLAGS@ -Wall
++AM_CXXFLAGS = @PANGOXFT_CFLAGS@ @GTK_CFLAGS@ @EBCONF_PTHREAD_CFLAGS@
++ebview_LDADD = @PANGOXFT_LIBS@ @GTK_LIBS@ @THREAD_LIBS@ @CYGWIN_CFLAGS@ \
+                @EBCONF_EBLIBS@ @EBCONF_ZLIBLIBS@ @EBCONF_INTLLIBS@ @RES_FILE@ @EXTRA_LIBS@
+ ebview_LDFLAGS = @EBCONF_PTHREAD_LDFLAGS@
+ 
+diff -urN ebview-0.3.6.2.orig/src/preference.c ebview-0.3.6.2/src/preference.c
+--- ebview-0.3.6.2.orig/src/preference.c	2013-03-26 23:23:07.386966388 +0900
++++ ebview-0.3.6.2/src/preference.c	2013-03-26 23:23:23.296966441 +0900
+@@ -27,7 +27,7 @@
+ #ifdef __WIN32__
+ #include <pango/pangowin32.h>
+ #else
+-#include <pango/pangox.h>
++#include <pango/pangoxft.h>
+ #endif
+ 
+ #include "dictbar.h"
+@@ -401,7 +401,9 @@
+ 	PangoLanguage* lang;
+ 	PangoFontMap* fontmap;
+ #ifndef __WIN32__
+-	Display *display;
++	GdkScreen *screen;
++	Display *xdisplay;
++	int xscreen;
+ #endif
+ 	PangoContext *context;
+ 	PangoFontset* fontset;
+@@ -423,13 +425,19 @@
+ #ifdef __WIN32__
+ 	fontmap = pango_win32_font_map_for_display();
+ #else
+-	display = gdk_x11_drawable_get_xdisplay(main_window->window);
+-	if(display == NULL){
+-		LOG(LOG_INFO, "display == NULL");
++	screen = gtk_widget_get_screen(main_window);
++	if(screen == NULL){
++		LOG(LOG_INFO, "screen == NULL");
+ 		return;
+ 	}
++	xdisplay = GDK_SCREEN_XDISPLAY(screen);
++	if(xdisplay == NULL){
++		LOG(LOG_INFO, "xdisplay == NULL");
++		return;
++	}
++	xscreen = GDK_SCREEN_XNUMBER(screen);
+ 
+-	fontmap = pango_x_font_map_for_display(display);
++	fontmap = pango_xft_get_font_map(xdisplay, xscreen);
+ #endif
+ 
+ 	if(fontmap == NULL){
